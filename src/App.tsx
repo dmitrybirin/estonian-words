@@ -6,8 +6,9 @@ import { words } from './data/words';
 
 const List = styled.div`
 	display: grid;
-	grid-gap: 15px;
+	grid-gap: 16px;
 	justify-content: center;
+	padding: 16px;
 	grid-template-columns: repeat(auto-fill, 300px);
 `;
 
@@ -25,9 +26,10 @@ function App() {
 	return (
 		<>
 			<Header />
-
 			<CenteredContainer>
-				<p>{words.length}</p>
+				<p>Number in the dict: {words.length}</p>
+			</CenteredContainer>
+			<CenteredContainer>
 				<input type="text" value={inputText} onChange={(event) => setInputText(event.target.value)} />
 			</CenteredContainer>
 			<List>

@@ -17,6 +17,10 @@ const Word = styled(CenteredContainer)`
 	flex: 1;
 `;
 
+const Translation = styled(Word)`
+	font-weight: bold;
+`;
+
 const FormsContainer = styled(CenteredContainer)`
 	flex-direction: column;
 `;
@@ -28,7 +32,7 @@ interface CardProps {
 export const Card: React.FC<CardProps> = ({ word }) => {
 	return (
 		<CardContainer>
-			<Word>{word.ruTranslation}</Word>
+			<Translation>{word.ruTranslation}</Translation>
 			<FormsContainer>
 				<Word>{word.forms.first}</Word>
 				<Word>{word.forms.second}</Word>
