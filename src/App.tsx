@@ -1,16 +1,14 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
+import { Card } from './Card';
 import { CenteredContainer } from './common-styles';
 import { words } from './data/words';
 
-const List = styled(CenteredContainer)`
-	flex-wrap: wrap;
-`;
-
-const Card = styled(CenteredContainer)`
-	width: 300px;
-	height: 100px;
-	border: solid black 2px;
+const List = styled.div`
+	display: grid;
+	grid-gap: 15px;
+	justify-content: center;
+	grid-template-columns: repeat(auto-fill, 300px);
 `;
 
 const Header = () => {
@@ -22,7 +20,7 @@ const Header = () => {
 };
 
 function App() {
-	const [inputText, setInputText] = useState('');
+	const [inputText, setInputText] = React.useState('');
 
 	return (
 		<>
@@ -36,9 +34,7 @@ function App() {
 				{words
 					.filter((word) => word.ruTranslation.includes(inputText) || word.forms.first.includes(inputText))
 					.map((word) => (
-						<Card key={word.forms.first} style={{ color: 'red' }}>
-							{word.ruTranslation}
-						</Card>
+						<Card key={word.forms.first} word={word} />
 					))}
 			</List>
 		</>

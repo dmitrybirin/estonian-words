@@ -1,21 +1,4 @@
-// todo with translations
-// interface Type
-
-interface VerbForms {
-	first: string;
-	second: string;
-	third: string;
-}
-
-interface Word {
-	type: string;
-	forms: VerbForms;
-	ruTranslation: string;
-}
-
-interface Verb extends Word {
-	type: 'verb';
-}
+import { Verb } from '../types';
 
 export const words: Verb[] = [
 	{
