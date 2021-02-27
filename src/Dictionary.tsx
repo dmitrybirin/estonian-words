@@ -13,21 +13,12 @@ const List = styled.div`
 	grid-template-columns: repeat(auto-fill, 300px);
 `;
 
-const Header = () => {
-	return (
-		<CenteredContainer>
-			<h1>Estonian words</h1>
-		</CenteredContainer>
-	);
-};
-
 export function Dictionary() {
 	const { searchId } = useParams<{ searchId: string }>();
 	const [inputText, setInputText] = React.useState(searchId ?? '');
 
 	return (
 		<>
-			<Header />
 			<CenteredContainer>
 				<p>Number in the dict: {words.length}</p>
 			</CenteredContainer>
