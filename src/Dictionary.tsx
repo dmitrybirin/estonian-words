@@ -29,7 +29,7 @@ export function Dictionary() {
 				{words
 					.filter((word) => word.ruTranslation.includes(inputText) || word.forms.first.includes(inputText))
 					.map((word) => (
-						<Card key={word.forms.first} word={word} />
+						<Card key={word.id} word={word} />
 					))}
 			</List>
 		</>

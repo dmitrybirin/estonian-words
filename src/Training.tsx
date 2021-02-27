@@ -1,9 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Card } from './Card';
 import { CenteredContainer } from './common-styles';
 import { words } from './data/words';
-import { Verb } from './types';
+import { Word } from './types';
 import { getRandomElement, pseudoShuffle } from './utils';
 
 const TrainingContainer = styled(CenteredContainer)`
@@ -14,8 +13,8 @@ const Variant = styled.p`
 	padding: 10px;
 `;
 
-const getVariants = (answer: Verb, words: Verb[]) => {
-	return pseudoShuffle([answer, getRandomElement<Verb>(words), getRandomElement<Verb>(words)]);
+const getVariants = (answer: Word, words: Word[]) => {
+	return pseudoShuffle([answer, getRandomElement<Word>(words), getRandomElement<Word>(words)]);
 };
 
 export function Training() {
@@ -24,12 +23,12 @@ export function Training() {
 		const interval = setInterval(() => setCounter((counter) => counter + 1), 1000);
 		return () => clearInterval(interval);
 	}, []);
-	const [word, setWord] = React.useState(getRandomElement<Verb>(words));
+	const [word, setWord] = React.useState(getRandomElement<Word>(words));
 
 	React.useEffect(() => setVariants(getVariants(word, words)), [word]);
 
 	const [variants, setVariants] = React.useState(
-		pseudoShuffle([word, getRandomElement<Verb>(words), getRandomElement<Verb>(words)])
+		pseudoShuffle([word, getRandomElement<Word>(words), getRandomElement<Word>(words)])
 	);
 
 	return (
@@ -40,7 +39,7 @@ export function Training() {
 
 			<CenteredContainer>
 				{variants.map((variant) => (
-					<Variant>{variant.forms.first}</Variant>
+					<Variant key={variant.id}>{variant.forms.first}</Variant>
 				))}
 			</CenteredContainer>
 

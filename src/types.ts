@@ -8,6 +8,7 @@ export interface VerbForms {
 }
 
 export interface Word {
+	id: string;
 	type: string;
 	forms: VerbForms;
 	ruTranslation: string;

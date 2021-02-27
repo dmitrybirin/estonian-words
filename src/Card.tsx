@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { CenteredContainer } from './common-styles';
-import { Verb } from './types';
+import { Word as WordType } from './types';
 
 const CardContainer = styled.div`
 	width: 300px;
@@ -26,7 +26,7 @@ const FormsContainer = styled(CenteredContainer)`
 `;
 
 interface CardProps {
-	word: Verb;
+	word: WordType;
 }
 
 export const Card: React.FC<CardProps> = ({ word }) => {
