@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { CenteredContainer } from './common-styles';
-import { words } from './data/words';
+import { useDictionary } from './hooks/useDictionary';
 import { Word } from './types';
 import { getRandomElement, pseudoShuffle } from './utils';
 
@@ -59,34 +59,47 @@ const getTestResult = (answer: Word, currentWord: Word) => {
 };
 
 export function Training() {
+	const { words, loading } = useDictionary('A1');
 	const [counter, setCounter] = React.useState(0);
 	const [result, setResult] = React.useState(TestResult.ONGOING);
+
 	React.useEffect(() => {
 		const interval = setInterval(() => setCounter((counter) => counter + 1), 1000);
 		return () => clearInterval(interval);
 	}, []);
-	const [word, setWord] = React.useState(getRandomElement<Word>(words));
+
+	const [word, setWord] = React.useState<Word>();
+	const [translation, setTranslation] = React.useState('');
 
 	React.useEffect(() => {
-		setVariants(getVariants(word, words));
-		setResult(TestResult.ONGOING);
+		setWord(getRandomElement<Word>(words));
+	}, [words.length]);
+
+	React.useEffect(() => {
+		if (word) {
+			setTranslation(getRandomElement(word.ruTranslations));
+			setVariants(pseudoShuffle(getVariants(word, words)));
+			setResult(TestResult.ONGOING);
+		}
 	}, [word]);
 
-	const [variants, setVariants] = React.useState(
-		pseudoShuffle([word, getRandomElement<Word>(words), getRandomElement<Word>(words)])
-	);
+	const [variants, setVariants] = React.useState<Word[]>([]);
+
+	if (loading || !words.length || !word) {
+		return 'Loading...';
+	}
 
 	return (
 		<TrainingContainer>
 			<p>{counter}</p>
 			<Result result={result} />
-			<p>{word.ruTranslation}</p>
+			<p>{translation}</p>
 			<p>?</p>
 
 			<CenteredContainer>
 				{variants.map((variant) => (
 					<Variant key={variant.id} onClick={() => setResult(getTestResult(variant, word))}>
-						{variant.forms.first}
+						{variant.esInitial}
 					</Variant>
 				))}
 			</CenteredContainer>

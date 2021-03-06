@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { CenteredContainer } from './common-styles';
-import { Word as WordType } from './types';
+import { CaseForms, VerbForms, Word as WordType } from './types';
 
 const CardContainer = styled.div`
 	width: 300px;
@@ -32,11 +32,17 @@ interface CardProps {
 export const Card: React.FC<CardProps> = ({ word }) => {
 	return (
 		<CardContainer>
-			<Translation>{word.ruTranslation}</Translation>
+			<Translation>{word.ruTranslations[0]}</Translation>
 			<FormsContainer>
-				<Word>{word.forms.first}</Word>
-				<Word>{word.forms.second}</Word>
-				<Word>{word.forms.third}</Word>
+				{word?.forms ? (
+					<>
+						<Word>{(word.forms as VerbForms)?.maForm || (word.forms as CaseForms)?.first.singular}</Word>
+						<Word>{(word.forms as VerbForms)?.daForm || (word.forms as CaseForms)?.second.singular}</Word>
+						<Word>{(word.forms as VerbForms)?.thirdForm || (word.forms as CaseForms)?.third.singular}</Word>
+					</>
+				) : (
+					<Word>{word.esInitial}</Word>
+				)}
 			</FormsContainer>
 		</CardContainer>
 	);

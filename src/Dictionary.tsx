@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { Card } from './Card';
 import { CenteredContainer } from './common-styles';
-import { words } from './data/words';
+import { useDictionary } from './hooks/useDictionary';
 
 const List = styled.div`
 	display: grid;
@@ -16,7 +16,7 @@ const List = styled.div`
 export function Dictionary() {
 	const { searchId } = useParams<{ searchId: string }>();
 	const [inputText, setInputText] = React.useState(searchId ?? '');
-
+	const { words, loading } = useDictionary('A1');
 	return (
 		<>
 			<CenteredContainer>
@@ -26,11 +26,14 @@ export function Dictionary() {
 				<input type="text" value={inputText} onChange={(event) => setInputText(event.target.value)} />
 			</CenteredContainer>
 			<List>
-				{words
-					.filter((word) => word.ruTranslation.includes(inputText) || word.forms.first.includes(inputText))
-					.map((word) => (
-						<Card key={word.id} word={word} />
-					))}
+				{loading
+					? 'Loading...'
+					: words
+							.slice(0, 10)
+							.filter(
+								(word) => word.ruTranslations.includes(inputText) || word.esInitial.includes(inputText)
+							)
+							.map((word) => <Card key={word.id} word={word} />)}
 			</List>
 		</>
 	);
