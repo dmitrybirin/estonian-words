@@ -1,7 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
+import { Key } from 'ts-key-enum';
 import { CenteredContainer } from './common-styles';
 import { useDictionary } from './hooks/useDictionary';
+import { useKeyPress } from './hooks/useKeyPress';
 import { Word } from './types';
 import { getRandomElement, pseudoShuffle } from './utils';
 
@@ -86,13 +88,33 @@ const getTestResult = (answer: Word, currentWord: Word) => {
 export function Training() {
 	const { words, loading } = useDictionary('A1');
 
+	const rightArrowPressed = useKeyPress(Key.ArrowRight);
+	const leftArrowPressed = useKeyPress(Key.ArrowLeft);
+	const downArrowPressed = useKeyPress(Key.ArrowDown);
+	const spacePressed = useKeyPress(' ');
+
 	const [counter, setCounter] = React.useState(0);
 	const [result, setResult] = React.useState(TestResult.ONGOING);
 	const [word, setWord] = React.useState<Word>();
 	const [translation, setTranslation] = React.useState('');
 	const [variants, setVariants] = React.useState<Word[]>([]);
 
-	const [currentVariant, setVariant] = React.useState('');
+	const [currentVariant, setCurrentVariant] = React.useState(0);
+
+	React.useEffect(() => {
+		if (rightArrowPressed) {
+			setCurrentVariant((currentVariant + 1) % variants.length);
+		}
+		if (leftArrowPressed) {
+			setCurrentVariant(currentVariant - 1 < 0 ? variants.length - 1 : currentVariant - 1);
+		}
+		if (downArrowPressed) {
+			setWord(getRandomElement(words));
+		}
+		if (spacePressed && word) {
+			setResult(getTestResult(variants[currentVariant], word));
+		}
+	}, [leftArrowPressed, rightArrowPressed, downArrowPressed, spacePressed]);
 
 	React.useEffect(() => {
 		const interval = setInterval(() => setCounter((counter) => counter + 1), 1000);
@@ -108,7 +130,7 @@ export function Training() {
 			setTranslation(getRandomElement(word.ruTranslations));
 			const variants = pseudoShuffle(getVariants(word, words));
 			setVariants(variants);
-			setVariant(variants[1].esInitial);
+			setCurrentVariant(Math.ceil(variants.length / 2) - 1);
 			setResult(TestResult.ONGOING);
 		}
 	}, [word]);
@@ -128,7 +150,9 @@ export function Training() {
 						<VariantWord key={variant.id} onClick={() => setResult(getTestResult(variant, word))}>
 							{variant.esInitial}
 						</VariantWord>
-						<EmojiContainer>{variant.esInitial === currentVariant ? '👆' : ''}</EmojiContainer>
+						<EmojiContainer>
+							{variant.esInitial === variants[currentVariant].esInitial ? '👆' : ''}
+						</EmojiContainer>
 					</Variant>
 				))}
 			</VariantsContainer>
