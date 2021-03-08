@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { Key } from 'ts-key-enum';
 import { CenteredContainer } from './common-styles';
+import { useCountdown } from './hooks/useCountdown';
 import { useDictionary } from './hooks/useDictionary';
 import { useKeyPress } from './hooks/useKeyPress';
 import { Word } from './types';
@@ -88,12 +89,13 @@ const getTestResult = (answer: Word, currentWord: Word) => {
 export function Training() {
 	const { words, loading } = useDictionary('A1');
 
+	const { counter, active } = useCountdown(5);
+
 	const rightArrowPressed = useKeyPress(Key.ArrowRight);
 	const leftArrowPressed = useKeyPress(Key.ArrowLeft);
 	const downArrowPressed = useKeyPress(Key.ArrowDown);
 	const spacePressed = useKeyPress(' ');
 
-	const [counter, setCounter] = React.useState(0);
 	const [result, setResult] = React.useState(TestResult.ONGOING);
 	const [word, setWord] = React.useState<Word>();
 	const [translation, setTranslation] = React.useState('');
@@ -117,11 +119,6 @@ export function Training() {
 	}, [leftArrowPressed, rightArrowPressed, downArrowPressed, spacePressed]);
 
 	React.useEffect(() => {
-		const interval = setInterval(() => setCounter((counter) => counter + 1), 1000);
-		return () => clearInterval(interval);
-	}, []);
-
-	React.useEffect(() => {
 		setWord(getRandomElement<Word>(words));
 	}, [words.length]);
 
@@ -142,24 +139,28 @@ export function Training() {
 	return (
 		<TrainingContainer>
 			<p>{counter}</p>
-			<TestWordContainer>{translation}</TestWordContainer>
+			{active ? (
+				<>
+					<TestWordContainer>{translation}</TestWordContainer>
 
-			<VariantsContainer>
-				{variants.map((variant) => (
-					<Variant>
-						<VariantWord key={variant.id} onClick={() => setResult(getTestResult(variant, word))}>
-							{variant.esInitial}
-						</VariantWord>
-						<EmojiContainer>
-							{variant.esInitial === variants[currentVariant].esInitial ? '👆' : ''}
-						</EmojiContainer>
-					</Variant>
-				))}
-			</VariantsContainer>
+					<VariantsContainer>
+						{variants.map((variant) => (
+							<Variant>
+								<VariantWord key={variant.id} onClick={() => setResult(getTestResult(variant, word))}>
+									{variant.esInitial}
+								</VariantWord>
+								<EmojiContainer>
+									{variant.esInitial === variants[currentVariant].esInitial ? '👆' : ''}
+								</EmojiContainer>
+							</Variant>
+						))}
+					</VariantsContainer>
 
-			<Result result={result} />
+					<Result result={result} />
 
-			<button onClick={() => setWord(getRandomElement(words))}>next</button>
+					<button onClick={() => setWord(getRandomElement(words))}>next</button>
+				</>
+			) : null}
 		</TrainingContainer>
 	);
 }
