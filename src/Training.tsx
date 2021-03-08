@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { Key } from 'ts-key-enum';
 import { CenteredContainer } from './common-styles';
@@ -48,6 +48,16 @@ const VariantsContainer = styled(CenteredContainer)`
 	width: 50vw;
 `;
 
+const PointsContainer = styled(CenteredContainer)`
+	width: 100px;
+	justify-content: space-between;
+`;
+
+const Points = styled.div`
+	font-size: 32px;
+	color: ${(props) => props.color};
+`;
+
 const Result: React.FC<{ result: TestResult }> = ({ result }) => {
 	switch (result) {
 		case TestResult.ONGOING:
@@ -89,34 +99,22 @@ const getTestResult = (answer: Word, currentWord: Word) => {
 export function Training() {
 	const { words, loading } = useDictionary('A1');
 
-	const { counter, active } = useCountdown(5);
+	const { countdown, active } = useCountdown(60);
+
+	const [wonPoints, setWonPoints] = useState(0);
+	const [lostPoints, setLostPoints] = useState(0);
+	const [result, setResult] = React.useState(TestResult.ONGOING);
 
 	const rightArrowPressed = useKeyPress(Key.ArrowRight);
 	const leftArrowPressed = useKeyPress(Key.ArrowLeft);
 	const downArrowPressed = useKeyPress(Key.ArrowDown);
 	const spacePressed = useKeyPress(' ');
 
-	const [result, setResult] = React.useState(TestResult.ONGOING);
 	const [word, setWord] = React.useState<Word>();
 	const [translation, setTranslation] = React.useState('');
 	const [variants, setVariants] = React.useState<Word[]>([]);
 
 	const [currentVariant, setCurrentVariant] = React.useState(0);
-
-	React.useEffect(() => {
-		if (rightArrowPressed) {
-			setCurrentVariant((currentVariant + 1) % variants.length);
-		}
-		if (leftArrowPressed) {
-			setCurrentVariant(currentVariant - 1 < 0 ? variants.length - 1 : currentVariant - 1);
-		}
-		if (downArrowPressed) {
-			setWord(getRandomElement(words));
-		}
-		if (spacePressed && word) {
-			setResult(getTestResult(variants[currentVariant], word));
-		}
-	}, [leftArrowPressed, rightArrowPressed, downArrowPressed, spacePressed]);
 
 	React.useEffect(() => {
 		setWord(getRandomElement<Word>(words));
@@ -132,13 +130,42 @@ export function Training() {
 		}
 	}, [word]);
 
+	const resolveRound = useCallback(
+		(result) => {
+			setResult(result);
+			if (result === TestResult.SUCCESS) setWonPoints((points) => points + 1);
+			if (result === TestResult.FAILURE) setLostPoints((points) => points + 1);
+		},
+		[result]
+	);
+
+	React.useEffect(() => {
+		if (rightArrowPressed) {
+			setCurrentVariant((currentVariant + 1) % variants.length);
+		}
+		if (leftArrowPressed) {
+			setCurrentVariant(currentVariant - 1 < 0 ? variants.length - 1 : currentVariant - 1);
+		}
+		if (downArrowPressed) {
+			setWord(getRandomElement(words));
+		}
+		if (spacePressed && word) {
+			resolveRound(getTestResult(variants[currentVariant], word));
+		}
+	}, [leftArrowPressed, rightArrowPressed, downArrowPressed, spacePressed]);
+
 	if (loading || !words.length || !word) {
 		return 'Loading...';
 	}
 
 	return (
 		<TrainingContainer>
-			<p>{counter}</p>
+			<p>{countdown}</p>
+			<PointsContainer>
+				<Points color="green">{wonPoints}</Points>
+
+				<Points color="red">{lostPoints}</Points>
+			</PointsContainer>
 			{active ? (
 				<>
 					<TestWordContainer>{translation}</TestWordContainer>
@@ -146,7 +173,10 @@ export function Training() {
 					<VariantsContainer>
 						{variants.map((variant) => (
 							<Variant>
-								<VariantWord key={variant.id} onClick={() => setResult(getTestResult(variant, word))}>
+								<VariantWord
+									key={variant.id}
+									onClick={() => resolveRound(getTestResult(variant, word))}
+								>
 									{variant.esInitial}
 								</VariantWord>
 								<EmojiContainer>
