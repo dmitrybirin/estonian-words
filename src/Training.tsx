@@ -29,6 +29,7 @@ const TestWordContainer = styled.div`
 
 const Variant = styled(CenteredContainer)`
 	height: 240px;
+	width: 100px;
 	flex-direction: column;
 	align-items: center;
 	justify-content: flex-start;
