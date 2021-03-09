@@ -5,6 +5,7 @@ import { CenteredContainer } from './common-styles';
 
 import { Dictionary } from './Dictionary';
 import { Training } from './Training';
+import { VariantsGame } from './Training/VariantsGame';
 
 const Header = () => {
 	return (
@@ -30,6 +31,7 @@ export function App() {
 			<Route path="/dictionary/:searchId" exact component={Dictionary} />
 			<Route path="/dictionary" exact component={Dictionary} />
 			<Route path="/training" exact component={Training} />
+			<Route path="/training/variants/:level" exact component={VariantsGame} />
 		</Router>
 	);
 }
