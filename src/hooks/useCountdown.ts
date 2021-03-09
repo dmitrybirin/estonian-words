@@ -14,9 +14,10 @@ export function useCountdown(seconds: number) {
 
 	React.useEffect(() => {
 		setActive(true);
-		setIntervalId(setInterval(() => setCountdown((countdown) => countdown - 1), 1000));
+		const interval = setInterval(() => setCountdown((countdown) => countdown - 1), 1000);
+		setIntervalId(interval);
 		return () => {
-			clearInterval(intervalId);
+			clearInterval(interval);
 			setActive(false);
 		};
 	}, []);

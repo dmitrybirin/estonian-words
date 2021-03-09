@@ -45,3 +45,16 @@ export interface ErrorWord {
 	problematicWord: string;
 	errorText: string;
 }
+
+export enum TestResult {
+	ONGOING,
+	SUCCESS,
+	FAILURE
+}
+
+export enum GameStates {
+	INIT,
+	IN_PROGRESS,
+	ROUND_OVER,
+	GAME_OVER
+}

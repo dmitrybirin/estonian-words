@@ -29,11 +29,12 @@ export function Dictionary() {
 				{loading
 					? 'Loading...'
 					: words
-							.slice(0, 10)
 							.filter(
-								(word) => word.ruTranslations.includes(inputText) || word.esInitial.includes(inputText)
+								(word) =>
+									word.ruTranslations[0].includes(inputText) || word.esInitial.includes(inputText)
 							)
-							.map((word) => <Card key={word.id} word={word} />)}
+							.map((word) => <Card key={word.id} word={word} />)
+							.slice(0, 10)}
 			</List>
 		</>
 	);

@@ -1,46 +1,24 @@
-import React, { useCallback, useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { Key } from 'ts-key-enum';
-import { CenteredContainer } from './common-styles';
-import { useCountdown } from './hooks/useCountdown';
-import { useDictionary } from './hooks/useDictionary';
-import { useKeyPress } from './hooks/useKeyPress';
-import { Word } from './types';
-import { getRandomElement, pseudoShuffle } from './utils';
-
-enum TestResult {
-	ONGOING,
-	SUCCESS,
-	FAILURE
-}
+import { CenteredContainer } from '../common-styles';
+import { EmojiContainer } from '../components/EmojiContainer';
+import { useCountdown } from '../hooks/useCountdown';
+import { useDictionary } from '../hooks/useDictionary';
+import { useKeyPress } from '../hooks/useKeyPress';
+import { theme } from '../theme';
+import { Word, TestResult, GameStates } from '../types';
+import { getRandomElement, pseudoShuffle } from '../utils';
+import { Variant } from './Variant';
 
 const TrainingContainer = styled(CenteredContainer)`
 	flex-direction: column;
-`;
-
-const EmojiContainer = styled.div`
-	font-size: 72px;
+	background-color: ${(props) => props.color};
 `;
 
 const TestWordContainer = styled.div`
 	font-size: 42px;
 	padding-bottom: 24px;
-`;
-
-const Variant = styled(CenteredContainer)`
-	height: 240px;
-	width: 100px;
-	flex-direction: column;
-	align-items: center;
-	justify-content: flex-start;
-`;
-
-const VariantWord = styled.p`
-	padding: 10px;
-	cursor: pointer;
-	font-size: 24px;
-	padding: 10px;
-	border: 1px solid;
 `;
 
 const VariantsContainer = styled(CenteredContainer)`
@@ -98,13 +76,14 @@ const getTestResult = (answer: Word, currentWord: Word) => {
 };
 
 export function Training() {
-	const { words, loading } = useDictionary('A1');
+	const { words, loading } = useDictionary('B1');
 
 	const { countdown, active } = useCountdown(60);
 
-	const [wonPoints, setWonPoints] = useState(0);
-	const [lostPoints, setLostPoints] = useState(0);
+	const [wonPoints, setWonPoints] = React.useState(0);
+	const [lostPoints, setLostPoints] = React.useState(0);
 	const [result, setResult] = React.useState(TestResult.ONGOING);
+	const [gameState, setGameState] = React.useState(GameStates.INIT);
 
 	const rightArrowPressed = useKeyPress(Key.ArrowRight);
 	const leftArrowPressed = useKeyPress(Key.ArrowLeft);
@@ -123,6 +102,7 @@ export function Training() {
 
 	React.useEffect(() => {
 		if (word) {
+			setGameState(GameStates.IN_PROGRESS);
 			setTranslation(getRandomElement(word.ruTranslations));
 			const variants = pseudoShuffle(getVariants(word, words));
 			setVariants(variants);
@@ -131,14 +111,18 @@ export function Training() {
 		}
 	}, [word]);
 
-	const resolveRound = useCallback(
-		(result) => {
-			setResult(result);
-			if (result === TestResult.SUCCESS) setWonPoints((points) => points + 1);
-			if (result === TestResult.FAILURE) setLostPoints((points) => points + 1);
-		},
-		[result]
-	);
+	React.useEffect(() => {
+		if (result === TestResult.SUCCESS) {
+			setWonPoints((points) => points + 1);
+		}
+		if (result === TestResult.FAILURE) {
+			setLostPoints((points) => points + 1);
+		}
+		if ([TestResult.SUCCESS, TestResult.FAILURE].includes(result)) {
+			const timeout = setTimeout(() => setWord(getRandomElement(words)), 3000);
+			return () => clearTimeout(timeout);
+		}
+	}, [result]);
 
 	React.useEffect(() => {
 		if (rightArrowPressed) {
@@ -151,7 +135,8 @@ export function Training() {
 			setWord(getRandomElement(words));
 		}
 		if (spacePressed && word) {
-			resolveRound(getTestResult(variants[currentVariant], word));
+			setResult(getTestResult(variants[currentVariant], word));
+			setGameState(GameStates.ROUND_OVER);
 		}
 	}, [leftArrowPressed, rightArrowPressed, downArrowPressed, spacePressed]);
 
@@ -163,9 +148,9 @@ export function Training() {
 		<TrainingContainer>
 			<p>{countdown}</p>
 			<PointsContainer>
-				<Points color="green">{wonPoints}</Points>
+				<Points color={theme.successColor}>{wonPoints}</Points>
 
-				<Points color="red">{lostPoints}</Points>
+				<Points color={theme.failureColor}>{lostPoints}</Points>
 			</PointsContainer>
 			{active ? (
 				<>
@@ -173,17 +158,16 @@ export function Training() {
 
 					<VariantsContainer>
 						{variants.map((variant) => (
-							<Variant>
-								<VariantWord
-									key={variant.id}
-									onClick={() => resolveRound(getTestResult(variant, word))}
-								>
-									{variant.esInitial}
-								</VariantWord>
-								<EmojiContainer>
-									{variant.esInitial === variants[currentVariant].esInitial ? '👆' : ''}
-								</EmojiContainer>
-							</Variant>
+							<Variant
+								variant={variant}
+								onClick={() => {
+									setResult(getTestResult(variant, word));
+									setGameState(GameStates.ROUND_OVER);
+								}}
+								isCurrent={variant.esInitial === variants[currentVariant].esInitial}
+								isRight={variant.esInitial === word.esInitial}
+								gameState={gameState}
+							/>
 						))}
 					</VariantsContainer>
 
