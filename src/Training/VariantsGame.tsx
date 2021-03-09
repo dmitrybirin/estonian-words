@@ -122,7 +122,7 @@ export function VariantsGame() {
 			setLostPoints((points) => points + 1);
 		}
 		if ([TestResult.SUCCESS, TestResult.FAILURE].includes(result)) {
-			const timeout = setTimeout(() => setWord(getRandomElement(words)), 3000);
+			const timeout = setTimeout(() => setWord(getRandomElement(words)), 1000);
 			return () => clearTimeout(timeout);
 		}
 	}, [result]);
