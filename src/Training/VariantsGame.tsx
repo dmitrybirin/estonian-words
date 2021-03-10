@@ -10,6 +10,7 @@ import { useKeyPress } from '../hooks/useKeyPress';
 import { theme } from '../theme';
 import { Word, TestResult, GameStates, EstonianLevels } from '../types';
 import { getRandomElement, pseudoShuffle } from '../utils';
+import { GameResult } from './GameResult';
 import { Variant } from './Variant';
 
 const TrainingContainer = styled(CenteredContainer)`
@@ -81,7 +82,7 @@ export function VariantsGame() {
 
 	const { words, loading } = useDictionary(level);
 
-	const { countdown, active } = useCountdown(60);
+	const { countdown, active: countdownActive, reset } = useCountdown(60);
 
 	const [wonPoints, setWonPoints] = React.useState(0);
 	const [lostPoints, setLostPoints] = React.useState(0);
@@ -155,7 +156,7 @@ export function VariantsGame() {
 
 				<Points color={theme.failureColor}>{lostPoints}</Points>
 			</PointsContainer>
-			{active ? (
+			{countdownActive ? (
 				<>
 					<TestWordContainer>{translation}</TestWordContainer>
 
@@ -179,7 +180,12 @@ export function VariantsGame() {
 
 					<button onClick={() => setWord(getRandomElement(words))}>next</button>
 				</>
-			) : null}
+			) : (
+				<>
+					<GameResult points={wonPoints - lostPoints} />
+					<button onClick={reset}>Start again!</button>
+				</>
+			)}
 		</TrainingContainer>
 	);
 }
