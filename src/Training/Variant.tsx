@@ -11,6 +11,9 @@ const VariantContainer = styled(CenteredContainer)`
 	flex-direction: column;
 	align-items: center;
 	justify-content: flex-start;
+	@media (max-width: 420px) {
+		height: 80px;
+	}
 `;
 
 const VariantWord = styled.p`
@@ -20,6 +23,12 @@ const VariantWord = styled.p`
 	padding: 10px;
 	border: 1px solid;
 	background-color: ${(props) => props.color};
+`;
+
+const HandContainer = styled(EmojiContainer)`
+	@media (max-width: 420px) {
+		display: none;
+	}
 `;
 
 interface VariantProps {
@@ -40,7 +49,7 @@ export function Variant({ variant, onClick, isCurrent, isRight, gameState }: Var
 			>
 				{variant.esInitial}
 			</VariantWord>
-			<EmojiContainer>{isCurrent ? '👆' : ''}</EmojiContainer>
+			<HandContainer>{isCurrent ? '👆' : ''}</HandContainer>
 		</VariantContainer>
 	);
 }

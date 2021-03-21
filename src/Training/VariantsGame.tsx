@@ -27,6 +27,10 @@ const VariantsContainer = styled(CenteredContainer)`
 	display: flex;
 	justify-content: space-between;
 	width: 50vw;
+	@media (max-width: 420px) {
+		flex-direction: column;
+		justify-content: center;
+	}
 `;
 
 const PointsContainer = styled(CenteredContainer)`
